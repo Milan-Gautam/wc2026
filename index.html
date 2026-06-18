@@ -80,16 +80,37 @@
         .btn.watch{background:linear-gradient(135deg,#e53e3e,#c53030)}
         .btn.hl{background:#4a5568}
         .btn.notify{background:#d4af37;color:#000}
-        .esewa{
-            display:flex;align-items:center;gap:12px;background:rgba(75,180,70,0.05);
-            border:1px solid rgba(75,180,70,0.3);border-radius:16px;padding:12px;margin:14px 0;
-            flex-wrap:wrap;justify-content:center
-        }
-        .qr{width:65px;height:65px;background:#fff;border-radius:10px;padding:3px}
-        .qr img{width:100%;height:100%}
-        .copy{background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:10px;cursor:pointer;font-size:0.58rem}
         .footer{text-align:center;font-size:0.5rem;padding-top:8px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.04);color:var(--muted)}
         .empty{text-align:center;padding:2rem;color:#4a5568}
+
+        /* eSewa popup modal */
+        .modal-overlay{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.7);z-index:999;display:flex;
+            align-items:center;justify-content:center;padding:1rem
+        }
+        .modal{
+            background:#1a1f2e;border:1px solid var(--gold);border-radius:16px;
+            padding:1.5rem;max-width:380px;width:100%;text-align:center;
+            box-shadow:0 20px 40px rgba(0,0,0,0.8);animation:fadeIn 0.3s ease
+        }
+        @keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+        .modal h3{color:var(--gold);margin-bottom:0.8rem;font-size:1rem}
+        .modal p{font-size:0.8rem;color:#ccc;margin-bottom:1rem}
+        .modal .esewa-details{
+            background:rgba(75,180,70,0.08);border:1px solid rgba(75,180,70,0.3);
+            border-radius:12px;padding:0.8rem;margin-bottom:1rem
+        }
+        .modal .qr{width:80px;height:80px;background:#fff;border-radius:10px;margin:0 auto 0.5rem;padding:4px}
+        .modal .qr img{width:100%;height:100%}
+        .modal .copy-btn{
+            background:var(--green);color:#fff;border:none;padding:0.4rem 1rem;
+            border-radius:20px;font-weight:600;cursor:pointer;font-size:0.75rem;margin-top:0.5rem
+        }
+        .modal .close-btn{
+            background:transparent;border:1px solid var(--gold);color:var(--gold);
+            padding:0.3rem 1rem;border-radius:20px;font-size:0.7rem;cursor:pointer;margin-top:0.5rem
+        }
         @media(max-width:500px){
             .teams{font-size:0.7rem;gap:4px}
             .team-name{max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -100,6 +121,24 @@
     </style>
 </head>
 <body>
+<!-- eSewa popup -->
+<div class="modal-overlay" id="donateModal">
+    <div class="modal">
+        <h3>⚽ Support Our Work</h3>
+        <p>We need to run this website. Please consider donating via eSewa. 🙏</p>
+        <div class="esewa-details">
+            <div class="qr">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='white'/%3E%3Ctext x='8' y='45' font-family='Arial' font-size='8' fill='%23222'%3EeSewa%3C/text%3E%3C/svg%3E" alt="eSewa QR">
+            </div>
+            <div style="font-size:0.8rem;color:#fff;">
+                eSewa ID: <strong id="popupEsewaId">9800000000</strong>
+            </div>
+            <button class="copy-btn" onclick="copyPopupEsewa()">📋 Copy ID</button>
+        </div>
+        <button class="close-btn" onclick="closeDonatePopup()">Close</button>
+    </div>
+</div>
+
 <div class="container">
     <header class="header">
         <div class="badge"><span class="dot"></span> <span id="modeIndicator">LIVE DATA</span></div>
@@ -117,27 +156,18 @@
 
     <main class="matches" id="matchesContainer"><div class="empty">Loading...</div></main>
 
-    <aside class="esewa">
-        <div class="qr"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='65' height='65'%3E%3Crect width='65' height='65' fill='white'/%3E%3Ctext x='6' y='35' font-family='Arial' font-size='7' fill='%23222'%3EeSewa%3C/text%3E%3C/svg%3E" alt="QR"></div>
-        <div>
-            <strong style="color:#4bb446;">💰 Support via eSewa</strong><br>
-            ID: <span id="esewaIdDisplay">9800000000</span>
-            <button class="copy" onclick="copyEsewa()">📋 Copy</button>
-        </div>
-    </aside>
-
     <footer class="footer">
         <p>Full schedule · Real scores · All times Nepal (GMT+5:45) · Auto‑updates every 60s</p>
     </footer>
 </div>
 
 <script>
-// ==================== CONFIGURATION – EDIT THESE ====================
+// ==================== CONFIGURATION ====================
 const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';
 const ESEWA_ID = '9800000000';                     // your eSewa ID
 const STREAM_URL = 'https://www.fifa.com/en/tournaments/mens/worldcup/2026'; // your stream link
 
-// ==================== FLAGS (48 teams) ====================
+// ==================== FLAGS (all 48 teams – no missing entries) ====================
 const FLAGS = {
     'Mexico':'🇲🇽','South Africa':'🇿🇦','Korea Republic':'🇰🇷','Czechia':'🇨🇿',
     'Canada':'🇨🇦','Bosnia and Herzegovina':'🇧🇦','USA':'🇺🇸','Paraguay':'🇵🇾',
@@ -157,7 +187,7 @@ let currentDate = new Date().toISOString().split('T')[0];
 let matchData = {};
 let countdowns = [];
 
-// Nepal time
+// ==================== NEPAL TIME ====================
 function getNepalTime(){return new Date(new Date().getTime()+5.75*3600000)}
 function updateClock(){
     document.getElementById('nepalTime').textContent=
@@ -165,7 +195,7 @@ function updateClock(){
 }
 setInterval(updateClock,1000);updateClock();
 
-// Convert ET (UTC-4) match time to Nepal time string
+// ==================== TIME CONVERSION ====================
 function etToNepalTime(dateStr, timeStr) {
     const [h,m] = timeStr.split(':').map(Number);
     const etDate = new Date(`${dateStr}T${timeStr}:00-04:00`);
@@ -173,7 +203,6 @@ function etToNepalTime(dateStr, timeStr) {
     return nptDate.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
 }
 
-// Determine live/FT status based on current time (if JSON doesn't have status)
 function getLiveStatus(dateStr, timeStr) {
     const [h,m] = timeStr.split(':').map(Number);
     const startUTC = Date.UTC(2026, new Date(dateStr).getMonth(), new Date(dateStr).getDate(), h+4, m);
@@ -184,7 +213,7 @@ function getLiveStatus(dateStr, timeStr) {
     return 'FT';
 }
 
-// Fetch JSON from Gist
+// ==================== JSON FETCH ====================
 async function fetchMatchData() {
     const statusEl = document.getElementById('apiStatus');
     statusEl.textContent = '🔄 Fetching data from Gist...';
@@ -206,7 +235,7 @@ async function fetchMatchData() {
     renderMatches();
 }
 
-// Tabs
+// ==================== TABS ====================
 function buildTabs() {
     const dates = Object.keys(matchData).sort();
     if (dates.length === 0) {
@@ -221,7 +250,7 @@ function buildTabs() {
 }
 function switchDate(d) { currentDate = d; buildTabs(); renderMatches(); }
 
-// Render
+// ==================== RENDER ====================
 function renderMatches() {
     const container = document.getElementById('matchesContainer');
     const matches = matchData[currentDate] || [];
@@ -271,7 +300,7 @@ function renderMatches() {
         </div>`;
     }).join('');
 
-    // Countdowns for upcoming matches
+    // countdowns
     matches.forEach((m, i) => {
         if (!m.status || (m.status !== 'FT' && m.status !== 'LIVE')) {
             const el = document.getElementById('cd-'+i);
@@ -296,15 +325,28 @@ function renderMatches() {
     });
 }
 
-// Init
-function copyEsewa() { navigator.clipboard.writeText(ESEWA_ID); alert('Copied: '+ESEWA_ID); }
-document.getElementById('esewaIdDisplay').textContent = ESEWA_ID;
+// ==================== ESEWA POPUP ====================
+document.getElementById('popupEsewaId').textContent = ESEWA_ID;
 
+function copyPopupEsewa() {
+    navigator.clipboard.writeText(ESEWA_ID);
+    alert('eSewa ID copied: ' + ESEWA_ID);
+}
+
+function closeDonatePopup() {
+    document.getElementById('donateModal').style.display = 'none';
+}
+
+// Auto-close after 5 seconds
+setTimeout(() => {
+    document.getElementById('donateModal').style.display = 'none';
+}, 5000);
+
+// ==================== INIT ====================
 fetchMatchData();
-setInterval(fetchMatchData, 60000); // refresh every 60s
+setInterval(fetchMatchData, 60000);
 
 window.switchDate = switchDate;
-window.copyEsewa = copyEsewa;
 </script>
 </body>
 </html>
