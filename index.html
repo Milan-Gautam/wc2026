@@ -83,7 +83,6 @@
         .footer{text-align:center;font-size:0.5rem;padding-top:8px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.04);color:var(--muted)}
         .empty{text-align:center;padding:2rem;color:#4a5568}
 
-        /* eSewa popup */
         .modal-overlay{
             position:fixed;top:0;left:0;width:100%;height:100%;
             background:rgba(0,0,0,0.7);z-index:999;display:flex;
@@ -121,14 +120,13 @@
     </style>
 </head>
 <body>
-<!-- eSewa popup -->
 <div class="modal-overlay" id="donateModal">
     <div class="modal">
         <h3>⚽ Support Our Work</h3>
         <p>We need to run this website. Please consider donating via eSewa. 🙏</p>
         <div class="esewa-details">
             <div class="qr">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='white'/%3E%3Ctext x='8' y='45' font-family='Arial' font-size='8' fill='%23222'%3EeSewa%3C/text%3E%3C/svg%3E" alt="eSewa QR">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='white'/%3E%3Ctext x='8' y='45' font-family='Arial' font-size='8' fill='%23222'%3EeSewa%3C/text%3E%3C/svg%3E" alt="QR">
             </div>
             <div style="font-size:0.8rem;color:#fff;">
                 eSewa ID: <strong id="popupEsewaId">9800000000</strong>
@@ -162,12 +160,10 @@
 </div>
 
 <script>
-// ==================== CONFIGURATION ====================
-const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';  // CORRECT RAW URL
+const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';
 const ESEWA_ID = '9800000000';
 const STREAM_URL = 'https://www.fifa.com/en/tournaments/mens/worldcup/2026';
 
-// ==================== FLAGS (EXACT MATCH TO JSON KEYS) ====================
 const FLAGS = {
     'Mexico':'🇲🇽','South Africa':'🇿🇦','Korea Republic':'🇰🇷','Czechia':'🇨🇿',
     'Canada':'🇨🇦','Bosnia and Herzegovina':'🇧🇦','USA':'🇺🇸','Paraguay':'🇵🇾',
@@ -187,7 +183,6 @@ let currentDate = new Date().toISOString().split('T')[0];
 let matchData = {};
 let countdowns = [];
 
-// ==================== NEPAL TIME ====================
 function getNepalTime(){return new Date(new Date().getTime()+5.75*3600000)}
 function updateClock(){
     document.getElementById('nepalTime').textContent=
@@ -212,7 +207,6 @@ function getLiveStatus(dateStr, timeStr) {
     return 'FT';
 }
 
-// ==================== FETCH JSON ====================
 async function fetchMatchData() {
     const statusEl = document.getElementById('apiStatus');
     statusEl.textContent = '🔄 Fetching data from Gist...';
@@ -225,16 +219,14 @@ async function fetchMatchData() {
         document.getElementById('modeIndicator').textContent = 'LIVE';
         document.getElementById('modeIndicator').style.color = '#4bb446';
     } catch (e) {
-        console.warn('JSON fetch failed:', e);
+        console.warn('Fetch failed:', e);
         statusEl.textContent = '⚠️ Could not load data. Retrying...';
     }
-    document.getElementById('lastUpdated').textContent =
-        `Updated: ${getNepalTime().toLocaleTimeString()} NPT`;
+    document.getElementById('lastUpdated').textContent = `Updated: ${getNepalTime().toLocaleTimeString()} NPT`;
     buildTabs();
     renderMatches();
 }
 
-// ==================== TABS ====================
 function buildTabs() {
     const dates = Object.keys(matchData).sort();
     if (dates.length === 0) {
@@ -249,7 +241,6 @@ function buildTabs() {
 }
 function switchDate(d) { currentDate = d; buildTabs(); renderMatches(); }
 
-// ==================== RENDER ====================
 function renderMatches() {
     const container = document.getElementById('matchesContainer');
     const matches = matchData[currentDate] || [];
@@ -276,15 +267,12 @@ function renderMatches() {
 
         const statusText = isLive ? `🔴 LIVE` : (isFT ? '✅ FT' : `🕐 ${m.time}`);
         const nptKickoff = etToNepalTime(currentDate, m.time);
-
         const btn = isLive ? `<a href="${STREAM_URL}" target="_blank" class="btn watch">▶ WATCH</a>` :
                     isFT ? `<a href="${STREAM_URL}" target="_blank" class="btn hl">📺 HIGHLIGHTS</a>` :
                     `<a href="${STREAM_URL}" target="_blank" class="btn notify">🔔 NOTIFY</a>`;
 
-        // Fallback flag if name not found (should not happen with correct JSON)
         const homeFlag = FLAGS[m.home] || '🏳️';
         const awayFlag = FLAGS[m.away] || '🏳️';
-        console.log(`Flag test: ${m.home} → ${homeFlag}, ${m.away} → ${awayFlag}`);  // debug
 
         return `<div class="card${isLive?' live':''}${isFT?' finished':''}">
             <div style="display:flex;justify-content:space-between;font-size:0.6rem;margin-bottom:5px;">
@@ -304,7 +292,6 @@ function renderMatches() {
         </div>`;
     }).join('');
 
-    // countdowns
     matches.forEach((m, i) => {
         if (!m.status || (m.status !== 'FT' && m.status !== 'LIVE')) {
             const el = document.getElementById('cd-'+i);
@@ -312,12 +299,7 @@ function renderMatches() {
             const target = new Date(`${currentDate}T${m.time}:00-04:00`);
             const update = () => {
                 const diff = target - new Date();
-                if (diff <= 0) {
-                    el.textContent = 'LIVE';
-                    el.className = 'score live';
-                    renderMatches();
-                    return;
-                }
+                if (diff <= 0) { el.textContent = 'LIVE'; renderMatches(); return; }
                 const h = Math.floor(diff/3600000);
                 const min = Math.floor((diff%3600000)/60000);
                 const s = Math.floor((diff%60000)/1000);
@@ -329,20 +311,11 @@ function renderMatches() {
     });
 }
 
-// ==================== POPUP ====================
 document.getElementById('popupEsewaId').textContent = ESEWA_ID;
-function copyPopupEsewa() {
-    navigator.clipboard.writeText(ESEWA_ID);
-    alert('eSewa ID copied: ' + ESEWA_ID);
-}
-function closeDonatePopup() {
-    document.getElementById('donateModal').style.display = 'none';
-}
-setTimeout(() => {
-    document.getElementById('donateModal').style.display = 'none';
-}, 5000);
+function copyPopupEsewa() { navigator.clipboard.writeText(ESEWA_ID); alert('Copied: '+ESEWA_ID); }
+function closeDonatePopup() { document.getElementById('donateModal').style.display = 'none'; }
+setTimeout(() => { document.getElementById('donateModal').style.display = 'none'; }, 5000);
 
-// ==================== INIT ====================
 fetchMatchData();
 setInterval(fetchMatchData, 60000);
 
