@@ -83,7 +83,7 @@
         .footer{text-align:center;font-size:0.5rem;padding-top:8px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.04);color:var(--muted)}
         .empty{text-align:center;padding:2rem;color:#4a5568}
 
-        /* eSewa popup modal */
+        /* eSewa popup */
         .modal-overlay{
             position:fixed;top:0;left:0;width:100%;height:100%;
             background:rgba(0,0,0,0.7);z-index:999;display:flex;
@@ -163,11 +163,11 @@
 
 <script>
 // ==================== CONFIGURATION ====================
-const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';
-const ESEWA_ID = '9800000000';                     // your eSewa ID
-const STREAM_URL = 'https://www.fifa.com/en/tournaments/mens/worldcup/2026'; // your stream link
+const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';  // CORRECT RAW URL
+const ESEWA_ID = '9800000000';
+const STREAM_URL = 'https://www.fifa.com/en/tournaments/mens/worldcup/2026';
 
-// ==================== FLAGS (all 48 teams – no missing entries) ====================
+// ==================== FLAGS (EXACT MATCH TO JSON KEYS) ====================
 const FLAGS = {
     'Mexico':'🇲🇽','South Africa':'🇿🇦','Korea Republic':'🇰🇷','Czechia':'🇨🇿',
     'Canada':'🇨🇦','Bosnia and Herzegovina':'🇧🇦','USA':'🇺🇸','Paraguay':'🇵🇾',
@@ -195,7 +195,6 @@ function updateClock(){
 }
 setInterval(updateClock,1000);updateClock();
 
-// ==================== TIME CONVERSION ====================
 function etToNepalTime(dateStr, timeStr) {
     const [h,m] = timeStr.split(':').map(Number);
     const etDate = new Date(`${dateStr}T${timeStr}:00-04:00`);
@@ -213,7 +212,7 @@ function getLiveStatus(dateStr, timeStr) {
     return 'FT';
 }
 
-// ==================== JSON FETCH ====================
+// ==================== FETCH JSON ====================
 async function fetchMatchData() {
     const statusEl = document.getElementById('apiStatus');
     statusEl.textContent = '🔄 Fetching data from Gist...';
@@ -282,15 +281,20 @@ function renderMatches() {
                     isFT ? `<a href="${STREAM_URL}" target="_blank" class="btn hl">📺 HIGHLIGHTS</a>` :
                     `<a href="${STREAM_URL}" target="_blank" class="btn notify">🔔 NOTIFY</a>`;
 
+        // Fallback flag if name not found (should not happen with correct JSON)
+        const homeFlag = FLAGS[m.home] || '🏳️';
+        const awayFlag = FLAGS[m.away] || '🏳️';
+        console.log(`Flag test: ${m.home} → ${homeFlag}, ${m.away} → ${awayFlag}`);  // debug
+
         return `<div class="card${isLive?' live':''}${isFT?' finished':''}">
             <div style="display:flex;justify-content:space-between;font-size:0.6rem;margin-bottom:5px;">
                 <span>Group ${m.group||''}</span>
                 <span>${statusText}</span>
             </div>
             <div class="teams">
-                <div class="team"><span class="flag">${FLAGS[m.home]||'🏳️'}</span> <span class="team-name">${m.home}</span></div>
+                <div class="team"><span class="flag">${homeFlag}</span> <span class="team-name">${m.home}</span></div>
                 ${scoreHtml}
-                <div class="team"><span class="team-name">${m.away}</span> <span class="flag">${FLAGS[m.away]||'🏳️'}</span></div>
+                <div class="team"><span class="team-name">${m.away}</span> <span class="flag">${awayFlag}</span></div>
             </div>
             <div class="bottom">
                 <span>📍 ${m.venue||'TBD'}</span>
@@ -325,19 +329,15 @@ function renderMatches() {
     });
 }
 
-// ==================== ESEWA POPUP ====================
+// ==================== POPUP ====================
 document.getElementById('popupEsewaId').textContent = ESEWA_ID;
-
 function copyPopupEsewa() {
     navigator.clipboard.writeText(ESEWA_ID);
     alert('eSewa ID copied: ' + ESEWA_ID);
 }
-
 function closeDonatePopup() {
     document.getElementById('donateModal').style.display = 'none';
 }
-
-// Auto-close after 5 seconds
 setTimeout(() => {
     document.getElementById('donateModal').style.display = 'none';
 }, 5000);
