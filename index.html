@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>FIFA World Cup 2026™ Live Scores · Nepal Time</title>
+    <meta name="description" content="Live FIFA World Cup 2026 scores, full schedule, Nepal time, auto‑updating.">
+    <meta name="theme-color" content="#0a0c14">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--gold:#d4af37;--bg:#0a0c14;--red:#e53e3e;--green:#4bb446;--muted:#8892a4}
+        body{
+            background:var(--bg);font-family:'Inter',sans-serif;min-height:100vh;
+            display:flex;align-items:center;justify-content:center;padding:clamp(4px,1.5vw,12px);color:#fff
+        }
+        body::before{
+            content:"";position:fixed;inset:0;
+            background:radial-gradient(ellipse at 15% 40%,rgba(212,175,55,0.04) 0%,transparent 50%);
+            pointer-events:none;z-index:0
+        }
+        .container{
+            width:100%;max-width:850px;background:rgba(16,19,30,0.96);
+            backdrop-filter:blur(24px);border:1px solid rgba(212,175,55,0.2);
+            border-radius:clamp(16px,3vw,28px);box-shadow:0 25px 60px rgba(0,0,0,0.85);
+            padding:clamp(10px,2.5vw,20px);position:relative;z-index:1;
+            max-height:95vh;overflow-y:auto
+        }
+        .header{text-align:center;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:10px}
+        .badge{
+            display:inline-flex;align-items:center;gap:6px;background:rgba(229,62,62,0.12);
+            border:1px solid rgba(229,62,62,0.4);border-radius:20px;padding:5px 14px;
+            font-size:0.7rem;font-weight:700;color:#ff6b6b;margin-bottom:8px
+        }
+        .dot{width:7px;height:7px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(1.7)}}
+        .year{
+            font-size:clamp(2rem,6vw,3.2rem);font-weight:900;
+            background:linear-gradient(180deg,#f9e076 0%,#d4af37 50%,#b68b2c 100%);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1
+        }
+        .subtitle{font-size:0.8rem;font-weight:700;letter-spacing:3px;text-shadow:0 0 15px rgba(212,175,55,0.4)}
+        .npt{
+            display:inline-flex;align-items:center;gap:6px;background:rgba(212,175,55,0.1);
+            border:1px solid rgba(212,175,55,0.3);border-radius:16px;padding:4px 12px;
+            margin-top:8px;font-size:0.7rem;color:var(--gold)
+        }
+        .status-bar{
+            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+            gap:6px;padding:6px 10px;background:rgba(255,255,255,0.02);
+            border-radius:8px;margin-bottom:8px;font-size:0.62rem;color:var(--muted)
+        }
+        .tabs{
+            display:flex;gap:4px;margin:10px 0;overflow-x:auto;scrollbar-width:none;padding-bottom:2px
+        }
+        .tabs::-webkit-scrollbar{display:none}
+        .tab{
+            flex:0 0 auto;min-width:50px;padding:7px 10px;border:1px solid rgba(212,175,55,0.25);
+            background:rgba(0,0,0,0.3);color:#cbd5e0;border-radius:18px;font-weight:600;
+            cursor:pointer;font-size:0.7rem;transition:0.25s;text-align:center;white-space:nowrap
+        }
+        .tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+        .matches{display:flex;flex-direction:column;gap:6px;min-height:120px}
+        .card{
+            background:rgba(0,0,0,0.35);border:1px solid rgba(212,175,55,0.12);
+            border-radius:12px;padding:10px;transition:0.3s;position:relative;overflow:hidden
+        }
+        .card.live{border-color:var(--red);background:rgba(229,62,62,0.06);animation:glow 2.5s infinite}
+        @keyframes glow{0%,100%{box-shadow:0 0 6px rgba(229,62,62,0.1)}50%{box-shadow:0 0 16px rgba(229,62,62,0.2)}}
+        .card.finished{border-left:3px solid var(--green)}
+        .teams{display:flex;align-items:center;gap:8px;font-weight:600;font-size:0.82rem}
+        .team{flex:1;display:flex;align-items:center;gap:5px;min-width:0}
+        .team:last-child{justify-content:flex-end}
+        .flag{font-size:1.1rem;flex-shrink:0}
+        .score{font-size:1.2rem;font-weight:800;min-width:40px;text-align:center}
+        .score.live{color:var(--red)}
+        .score.ft{color:var(--gold)}
+        .bottom{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:0.56rem;color:var(--muted);flex-wrap:wrap;gap:4px}
+        .btn{padding:4px 10px;border-radius:12px;font-size:0.58rem;font-weight:700;text-decoration:none;color:#fff;white-space:nowrap}
+        .btn.watch{background:linear-gradient(135deg,#e53e3e,#c53030)}
+        .btn.hl{background:#4a5568}
+        .btn.notify{background:#d4af37;color:#000}
+        .esewa{
+            display:flex;align-items:center;gap:12px;background:rgba(75,180,70,0.05);
+            border:1px solid rgba(75,180,70,0.3);border-radius:16px;padding:12px;margin:14px 0;
+            flex-wrap:wrap;justify-content:center
+        }
+        .qr{width:65px;height:65px;background:#fff;border-radius:10px;padding:3px}
+        .qr img{width:100%;height:100%}
+        .copy{background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:10px;cursor:pointer;font-size:0.58rem}
+        .footer{text-align:center;font-size:0.5rem;padding-top:8px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+        .empty{text-align:center;padding:2rem;color:#4a5568}
+        @media(max-width:500px){
+            .teams{font-size:0.7rem;gap:4px}
+            .team-name{max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+            .score{font-size:1rem;min-width:30px}
+            .btn{padding:3px 7px;font-size:0.5rem}
+            .tab{font-size:0.6rem;padding:5px 7px}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div class="badge"><span class="dot"></span> <span id="modeIndicator">LIVE DATA</span></div>
+        <div class="year">2026</div>
+        <div class="subtitle">FIFA WORLD CUP</div>
+        <div class="npt">🇳🇵 Nepal Time: <span id="nepalTime">--:--</span> NPT</div>
+    </header>
+
+    <div class="status-bar">
+        <span id="apiStatus">⏳ Fetching data from Gist...</span>
+        <span id="lastUpdated">--</span>
+    </div>
+
+    <nav class="tabs" id="tabsWrapper"></nav>
+
+    <main class="matches" id="matchesContainer"><div class="empty">Loading...</div></main>
+
+    <aside class="esewa">
+        <div class="qr"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='65' height='65'%3E%3Crect width='65' height='65' fill='white'/%3E%3Ctext x='6' y='35' font-family='Arial' font-size='7' fill='%23222'%3EeSewa%3C/text%3E%3C/svg%3E" alt="QR"></div>
+        <div>
+            <strong style="color:#4bb446;">💰 Support via eSewa</strong><br>
+            ID: <span id="esewaIdDisplay">9800000000</span>
+            <button class="copy" onclick="copyEsewa()">📋 Copy</button>
+        </div>
+    </aside>
+
+    <footer class="footer">
+        <p>Full schedule · Real scores · All times Nepal (GMT+5:45) · Auto‑updates every 60s</p>
+    </footer>
+</div>
+
+<script>
+// ==================== CONFIGURATION – EDIT THESE ====================
+const JSON_URL = 'https://gist.githubusercontent.com/Milan-Gautam/2f5e89b79b215a3fe71e2c91c0ece582/raw/wc2026.json';
+const ESEWA_ID = '9800000000';                     // your eSewa ID
+const STREAM_URL = 'https://www.fifa.com/en/tournaments/mens/worldcup/2026'; // your stream link
+
+// ==================== FLAGS (48 teams) ====================
+const FLAGS = {
+    'Mexico':'🇲🇽','South Africa':'🇿🇦','Korea Republic':'🇰🇷','Czechia':'🇨🇿',
+    'Canada':'🇨🇦','Bosnia and Herzegovina':'🇧🇦','USA':'🇺🇸','Paraguay':'🇵🇾',
+    'Haiti':'🇭🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Australia':'🇦🇺','Türkiye':'🇹🇷',
+    'Brazil':'🇧🇷','Morocco':'🇲🇦','Qatar':'🇶🇦','Switzerland':'🇨🇭',
+    "Côte d'Ivoire":'🇨🇮','Ecuador':'🇪🇨','Germany':'🇩🇪','Curaçao':'🇨🇼',
+    'Netherlands':'🇳🇱','Japan':'🇯🇵','Sweden':'🇸🇪','Tunisia':'🇹🇳',
+    'Saudi Arabia':'🇸🇦','Uruguay':'🇺🇾','Spain':'🇪🇸','Cabo Verde':'🇨🇻',
+    'IR Iran':'🇮🇷','New Zealand':'🇳🇿','Belgium':'🇧🇪','Egypt':'🇪🇬',
+    'France':'🇫🇷','Senegal':'🇸🇳','Iraq':'🇮🇶','Norway':'🇳🇴',
+    'Argentina':'🇦🇷','Algeria':'🇩🇿','Austria':'🇦🇹','Jordan':'🇯🇴',
+    'Ghana':'🇬🇭','Panama':'🇵🇦','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croatia':'🇭🇷',
+    'Portugal':'🇵🇹','Congo DR':'🇨🇩','Uzbekistan':'🇺🇿','Colombia':'🇨🇴'
+};
+
+let currentDate = new Date().toISOString().split('T')[0];
+let matchData = {};
+let countdowns = [];
+
+// Nepal time
+function getNepalTime(){return new Date(new Date().getTime()+5.75*3600000)}
+function updateClock(){
+    document.getElementById('nepalTime').textContent=
+        getNepalTime().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})
+}
+setInterval(updateClock,1000);updateClock();
+
+// Convert ET (UTC-4) match time to Nepal time string
+function etToNepalTime(dateStr, timeStr) {
+    const [h,m] = timeStr.split(':').map(Number);
+    const etDate = new Date(`${dateStr}T${timeStr}:00-04:00`);
+    const nptDate = new Date(etDate.getTime() + 5.75*3600000);
+    return nptDate.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+
+// Determine live/FT status based on current time (if JSON doesn't have status)
+function getLiveStatus(dateStr, timeStr) {
+    const [h,m] = timeStr.split(':').map(Number);
+    const startUTC = Date.UTC(2026, new Date(dateStr).getMonth(), new Date(dateStr).getDate(), h+4, m);
+    const endUTC = startUTC + 2*60*60000;
+    const now = Date.now();
+    if (now < startUTC) return 'SCHEDULED';
+    if (now >= startUTC && now <= endUTC) return 'LIVE';
+    return 'FT';
+}
+
+// Fetch JSON from Gist
+async function fetchMatchData() {
+    const statusEl = document.getElementById('apiStatus');
+    statusEl.textContent = '🔄 Fetching data from Gist...';
+    try {
+        const res = await fetch(JSON_URL, {cache:'no-store'});
+        if (!res.ok) throw new Error('HTTP '+res.status);
+        const data = await res.json();
+        matchData = data;
+        statusEl.textContent = '✅ Live data loaded';
+        document.getElementById('modeIndicator').textContent = 'LIVE';
+        document.getElementById('modeIndicator').style.color = '#4bb446';
+    } catch (e) {
+        console.warn('JSON fetch failed:', e);
+        statusEl.textContent = '⚠️ Could not load data. Retrying...';
+    }
+    document.getElementById('lastUpdated').textContent =
+        `Updated: ${getNepalTime().toLocaleTimeString()} NPT`;
+    buildTabs();
+    renderMatches();
+}
+
+// Tabs
+function buildTabs() {
+    const dates = Object.keys(matchData).sort();
+    if (dates.length === 0) {
+        document.getElementById('tabsWrapper').innerHTML = '<button class="tab active">---</button>';
+        return;
+    }
+    if (!dates.includes(currentDate)) currentDate = dates[0];
+    document.getElementById('tabsWrapper').innerHTML = dates.map(d => {
+        const label = new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        return `<button class="tab${d===currentDate?' active':''}" onclick="switchDate('${d}')">${label}</button>`;
+    }).join('');
+}
+function switchDate(d) { currentDate = d; buildTabs(); renderMatches(); }
+
+// Render
+function renderMatches() {
+    const container = document.getElementById('matchesContainer');
+    const matches = matchData[currentDate] || [];
+    countdowns.forEach(c => clearInterval(c)); countdowns = [];
+
+    if (!matches.length) {
+        container.innerHTML = '<div class="empty">No matches on this date</div>';
+        return;
+    }
+
+    container.innerHTML = matches.map((m, i) => {
+        let status = m.status || getLiveStatus(currentDate, m.time);
+        const isLive = status === 'LIVE';
+        const isFT = status === 'FT';
+        const hasScore = m.homeScore !== null && m.homeScore !== undefined;
+        const id = 'cd-'+i;
+
+        let scoreHtml = '';
+        if (isFT && hasScore) scoreHtml = `<span class="score ft">${m.homeScore} - ${m.awayScore}</span>`;
+        else if (isLive && hasScore) scoreHtml = `<span class="score live">${m.homeScore} - ${m.awayScore}</span>`;
+        else if (isLive) scoreHtml = '<span class="score live">? - ?</span>';
+        else if (isFT) scoreHtml = '<span class="score ft">? - ?</span>';
+        else scoreHtml = `<span class="score" id="${id}">VS</span>`;
+
+        const statusText = isLive ? `🔴 LIVE` : (isFT ? '✅ FT' : `🕐 ${m.time}`);
+        const nptKickoff = etToNepalTime(currentDate, m.time);
+
+        const btn = isLive ? `<a href="${STREAM_URL}" target="_blank" class="btn watch">▶ WATCH</a>` :
+                    isFT ? `<a href="${STREAM_URL}" target="_blank" class="btn hl">📺 HIGHLIGHTS</a>` :
+                    `<a href="${STREAM_URL}" target="_blank" class="btn notify">🔔 NOTIFY</a>`;
+
+        return `<div class="card${isLive?' live':''}${isFT?' finished':''}">
+            <div style="display:flex;justify-content:space-between;font-size:0.6rem;margin-bottom:5px;">
+                <span>Group ${m.group||''}</span>
+                <span>${statusText}</span>
+            </div>
+            <div class="teams">
+                <div class="team"><span class="flag">${FLAGS[m.home]||'🏳️'}</span> <span class="team-name">${m.home}</span></div>
+                ${scoreHtml}
+                <div class="team"><span class="team-name">${m.away}</span> <span class="flag">${FLAGS[m.away]||'🏳️'}</span></div>
+            </div>
+            <div class="bottom">
+                <span>📍 ${m.venue||'TBD'}</span>
+                <span>🇳🇵 ${nptKickoff} NPT</span>
+                ${btn}
+            </div>
+        </div>`;
+    }).join('');
+
+    // Countdowns for upcoming matches
+    matches.forEach((m, i) => {
+        if (!m.status || (m.status !== 'FT' && m.status !== 'LIVE')) {
+            const el = document.getElementById('cd-'+i);
+            if (!el) return;
+            const target = new Date(`${currentDate}T${m.time}:00-04:00`);
+            const update = () => {
+                const diff = target - new Date();
+                if (diff <= 0) {
+                    el.textContent = 'LIVE';
+                    el.className = 'score live';
+                    renderMatches();
+                    return;
+                }
+                const h = Math.floor(diff/3600000);
+                const min = Math.floor((diff%3600000)/60000);
+                const s = Math.floor((diff%60000)/1000);
+                el.textContent = h>0 ? `${h}h ${min}m` : `${min}m ${s}s`;
+            };
+            update();
+            countdowns.push(setInterval(update, 1000));
+        }
+    });
+}
+
+// Init
+function copyEsewa() { navigator.clipboard.writeText(ESEWA_ID); alert('Copied: '+ESEWA_ID); }
+document.getElementById('esewaIdDisplay').textContent = ESEWA_ID;
+
+fetchMatchData();
+setInterval(fetchMatchData, 60000); // refresh every 60s
+
+window.switchDate = switchDate;
+window.copyEsewa = copyEsewa;
+</script>
+</body>
+</html>
